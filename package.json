@@ -8,7 +8,7 @@
     "jasmine": "jasmine",
     "dev": "nodemon src/index.ts",
     "test": "npm run build && npm run jasmine",
-    "start": "node index.js",
+    "start": "node index.ts",
     "lint": "eslint src",
     "prettier": "prettier --config .prettierrc src --write"
   },

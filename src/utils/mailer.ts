@@ -1,5 +1,4 @@
 import nodemailer from "nodemailer";
-import sgMail from "@sendgrid/mail";
 
 const Mailer = (email: string, message: string) => {
   const Transporter = nodemailer.createTransport({
@@ -14,7 +13,7 @@ const Mailer = (email: string, message: string) => {
   const mailOptions = {
     from: process.env.EMAIL_ADDRESS,
     to: email,
-    subject: "Verify your email address",
+    subject: "Your verification code",
     html: `
         <body>
           <div>
@@ -32,6 +31,7 @@ const Mailer = (email: string, message: string) => {
       console.log(error);
     } else {
       console.log("Email sent: " + info.response);
+      console.log(info);
     }
   });
 };

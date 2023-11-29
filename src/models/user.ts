@@ -49,16 +49,17 @@ export default class UserStore {
   async sendCode(mail: string, type: string): Promise<number> {
     try {
       const rand = parseInt(`${Math.random() * (999999 - 100000) + 100000}`);
-      const message = `<p style="margin: 2px 0">Dear User,</p> <p>Welcome to Krypt Wallet.</p> <p style="margin: 2px 0">Kindly verify your email address </p> <p> Your OTP is: <strong>${rand}</strong></p><p> This one time code expires in 10 minutes. Thanks for choosing us! <br/><br/> Best Regards <br/>  - ${mail}</p>`;
+      const message = `<p style="margin: 2px 0"> <p>Welcome to KW</p> <p style="margin: 2px 0">Verify your email address </p> <p> Your verification code is: <strong>${rand}</strong></p><p> This one time code expires in 10 minutes. <br/><br/> Best Regards <br/>  - ${mail}</p>`;
       const otpMessage = `
           <p>You just requested a new OTP</p>
           <p>Here is your verification code: <strong>${rand}</strong> </p> 
-          <p>This one time code expires in 10 minutes. Thanks for Choosing us!</p> Best Regards <br/><br/>  - ${mail}</p>`;
+          <p>The OTP expires in 10 minutes. Thanks for using krypt.</p> Best Regards <br/><br/>  - ${mail}</p>`;
       if (type === "otp") {
         await Mailer(mail, otpMessage);
       } else {
         await Mailer(mail, message);
       }
+
       return rand;
     } catch (error) {
       throw new Error(`Error occured ${error}`);
