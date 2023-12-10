@@ -2,6 +2,9 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Mailer from "../utils/mailer";
+import { WalletModel } from "./wallet";
+
+import { TransactionModel } from "./transaction";
 
 //Creating type of User for TypeScript
 export type User = {
@@ -49,7 +52,7 @@ export default class UserStore {
   async sendCode(mail: string, type: string): Promise<number> {
     try {
       const rand = parseInt(`${Math.random() * (999999 - 100000) + 100000}`);
-      const message = `<p style="margin: 2px 0"> <p>Welcome to KW</p> <p style="margin: 2px 0">Verify your email address </p> <p> Your verification code is: <strong>${rand}</strong></p><p> This one time code expires in 10 minutes. <br/><br/> Best Regards <br/>  - ${mail}</p>`;
+      const message = `<p style="margin: 2px 0"> <p>Welcome to Krypt</p> <p style="margin: 2px 0">Verify your email address </p> <p> Your verification code is: <strong>${rand}</strong></p><p> This one time code expires in 10 minutes. <br/><br/> Best Regards <br/>  - ${mail}</p>`;
       const otpMessage = `
           <p>You just requested a new OTP</p>
           <p>Here is your verification code: <strong>${rand}</strong> </p> 
@@ -156,6 +159,44 @@ export default class UserStore {
         } else {
           return false;
         }
+      }
+    } catch (error) {
+      throw new Error(`${error}`);
+    }
+  }
+
+  async editUser(id: string, updatedUser: User): Promise<void> {
+    try {
+      const checkForUser = await UserModel.findById(id);
+      if (checkForUser) {
+        // Update user fields
+        checkForUser.username = updatedUser.username;
+        checkForUser.email = updatedUser.email;
+        // Add more fields as needed
+
+        await checkForUser.save();
+      } else {
+        throw new Error("404");
+      }
+    } catch (error) {
+      throw new Error(`${error}`);
+    }
+  }
+
+  // Delete User
+  async deleteUser(id: string): Promise<void> {
+    try {
+      const checkForUser = await UserModel.findById(id);
+      if (checkForUser) {
+        // Delete associated wallets and transactions
+        // Assuming you have Wallet and Transaction models, update this accordingly
+        // For example:
+        await WalletModel.deleteMany({ _id: id });
+        await TransactionModel.deleteMany({ _id: id });
+
+        await checkForUser.remove();
+      } else {
+        throw new Error("404");
       }
     } catch (error) {
       throw new Error(`${error}`);

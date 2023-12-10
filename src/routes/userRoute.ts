@@ -252,6 +252,52 @@ import user_routes from "../handlers/users";
  *              500:
  *                  description: Internal server error
  *
+ * * /users/{id}:
+ *   put:
+ *     summary: Update user details
+ *     tags:
+ *       - User Endpoints
+ *     description: Updates the details of a user
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the user to be updated
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       204:
+ *         description: Success
+ *       404:
+ *         description: Not Found
+ *       500:
+ *         description: Internal Server Error
+ *   delete:
+ *     summary: Delete a user
+ *     tags:
+ *       - User Endpoints
+ *     description: Deletes a user along with their wallets and transactions
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the user to be deleted
+ *     responses:
+ *       204:
+ *         description: Success
+ *       404:
+ *         description: Not Found
+ *       500:
+ *         description: Internal Server Error
+ *
  */
 const router = Router();
 user_routes(router);

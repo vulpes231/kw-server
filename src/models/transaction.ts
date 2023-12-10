@@ -42,7 +42,10 @@ const TransactionSchema = new mongoose.Schema({
   },
 });
 
-const TransactionModel = mongoose.model("transaction", TransactionSchema);
+export const TransactionModel = mongoose.model(
+  "transaction",
+  TransactionSchema
+);
 
 //Creating Transaction Object
 export default class TransactionStore {

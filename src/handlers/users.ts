@@ -65,6 +65,27 @@ const verifyPin = async (req: Request, res: Response) => {
   }
 };
 
+const editUser = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+    const updatedUser = req.body; // Assuming you send the updated user data in the request body
+    await userStore.editUser(userId, updatedUser);
+    res.status(204).json({ message: "success" });
+  } catch (error) {
+    res.status(404).json(error);
+  }
+};
+
+const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+    await userStore.deleteUser(userId);
+    res.status(204).json({ message: "success" });
+  } catch (error) {
+    res.status(404).json(error);
+  }
+};
+
 const user_routes = (app: Router) => {
   app.get("/", index);
   app.post("/send%20verification%20code/:type", sendCode);
@@ -73,6 +94,8 @@ const user_routes = (app: Router) => {
   app.put("/setpin", isAuthorized, setUserPin);
   app.put("/verify", isAuthorized, verifyUser);
   app.get("/verify%20pin/:pin", isAuthorized, verifyPin);
+  app.put("/:id", isAuthorized, editUser); // Update user
+  app.delete("/:id", isAuthorized, deleteUser);
 };
 
 export default user_routes;
