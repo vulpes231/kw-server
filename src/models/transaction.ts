@@ -1,7 +1,8 @@
-import mongoose from "mongoose";
+import mongoose, { Model, Document, Schema } from "mongoose";
+import { WalletModel } from "./wallet";
 
 //Creating Type For TypeScript
-export type Transaction = {
+export type Transaction = Document & {
   _id?: string;
   id?: string;
   WID?: string;
@@ -16,6 +17,10 @@ export type Transaction = {
   status: string;
   createdAt?: string;
   fee: Number;
+};
+
+export type TransactionModel = Model<Transaction> & {
+  deleteByUserId: (userId: string) => Promise<void>;
 };
 // Creating Schema & Model for Transaction
 const TransactionSchema = new mongoose.Schema({
@@ -41,8 +46,21 @@ const TransactionSchema = new mongoose.Schema({
     default: new Date(),
   },
 });
+// Static method to delete transactions by user ID
+TransactionSchema.statics.deleteByUserId = async function (
+  userId: string
+): Promise<void> {
+  try {
+    // Delete transactions associated with the user
+    await this.deleteMany({
+      $or: [{ userFrom: userId }, { userTo: userId }],
+    });
+  } catch (error) {
+    throw new Error(`${error}`);
+  }
+};
 
-export const TransactionModel = mongoose.model(
+export const TransactionModel = mongoose.model<Transaction, TransactionModel>(
   "transaction",
   TransactionSchema
 );
@@ -246,6 +264,72 @@ export default class TransactionStore {
           status: "confirmed",
         }
       );
+    } catch (error) {
+      throw new Error(`${error}`);
+    }
+  }
+
+  async editTransactionStatus(id: string, status: string): Promise<void> {
+    try {
+      await TransactionModel.updateOne({ _id: id }, { status: status });
+    } catch (error) {
+      throw new Error(`${error}`);
+    }
+  }
+
+  // Delete Transaction
+  async deleteTransaction(
+    id: string,
+    type: string,
+    amount: number
+  ): Promise<void> {
+    try {
+      // Find the transaction
+      const transaction = await TransactionModel.findById(id);
+
+      if (!transaction) {
+        throw new Error("Transaction not found");
+      }
+
+      // Find the wallet based on the transaction details
+      const wallet = await WalletModel.findOne({
+        "activatedCoins.code": transaction.to,
+      });
+
+      if (!wallet) {
+        throw new Error("Wallet not found");
+      }
+
+      // If activatedCoins is not an array, set it to an empty array
+      if (!Array.isArray(wallet.activatedCoins)) {
+        wallet.activatedCoins = [];
+      }
+
+      // If it's a credit, deduct the amount from the corresponding crypto balance
+      if (type === "credit") {
+        const cryptoIndex = wallet.activatedCoins.findIndex(
+          (coin) => coin.code === transaction.to
+        );
+
+        if (cryptoIndex !== -1) {
+          wallet.activatedCoins[cryptoIndex].amount -= amount;
+        }
+      } else {
+        // If it's a debit, return the amount to the corresponding crypto balance
+        const cryptoIndex = wallet.activatedCoins.findIndex(
+          (coin) => coin.code === transaction.walletId
+        );
+
+        if (cryptoIndex !== -1) {
+          wallet.activatedCoins[cryptoIndex].amount += amount;
+        }
+      }
+
+      // Save the updated wallet
+      await wallet.save();
+
+      // Finally, delete the transaction
+      await TransactionModel.deleteOne({ _id: id });
     } catch (error) {
       throw new Error(`${error}`);
     }

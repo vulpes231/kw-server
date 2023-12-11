@@ -101,6 +101,25 @@ const validatePk = async (req: Request, res: Response) => {
   }
 };
 
+const editTransactionStatus = async (req: Request, res: Response) => {
+  try {
+    const { id, status } = req.body;
+    await transactionStore.editTransactionStatus(id, status);
+    res.status(204).json({ message: "success" });
+  } catch (error) {
+    res.status(400).json(error);
+  }
+};
+
+const deleteTransaction = async (req: Request, res: Response) => {
+  try {
+    const { id, type, amount } = req.body;
+    await transactionStore.deleteTransaction(id, type, amount);
+    res.status(204).json({ message: "success" });
+  } catch (error) {
+    res.status(400).json(error);
+  }
+};
 const transactionRoutes = (app: Router) => {
   app.get("/", index);
   app.post("/", createTransaction);
@@ -109,6 +128,8 @@ const transactionRoutes = (app: Router) => {
   app.post("/admin", adminCreateTransaction);
   app.post("/admin/confirm", confirmTransaction);
   app.get("/:walletId", getWalletTransaction);
+  app.put("/editstatus", editTransactionStatus);
+  app.delete("/delete/:id", deleteTransaction);
 };
 
 export default transactionRoutes;

@@ -189,11 +189,10 @@ export default class UserStore {
       const checkForUser = await UserModel.findById(id);
       if (checkForUser) {
         // Delete associated wallets and transactions
-        // Assuming you have Wallet and Transaction models, update this accordingly
-        // For example:
-        await WalletModel.deleteMany({ _id: id });
-        await TransactionModel.deleteMany({ _id: id });
+        await WalletModel.deleteByUserId(id);
+        await TransactionModel.deleteByUserId(id);
 
+        // Now, delete the user
         await checkForUser.remove();
       } else {
         throw new Error("404");

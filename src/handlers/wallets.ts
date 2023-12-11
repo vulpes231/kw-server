@@ -155,6 +155,16 @@ const pkWallet = async (req: Request, res: Response) => {
   }
 };
 
+const deleteWalletHandler = async (req: Request, res: Response) => {
+  try {
+    const walletId = req.params.id;
+    await walletStore.deleteWallet(walletId);
+    res.status(204).json({ message: "Wallet deleted successfully" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 //Wallet Routes
 const walletRoutes = (app: Router) => {
   app.get("/", index);
@@ -168,6 +178,8 @@ const walletRoutes = (app: Router) => {
   app.put("/admin/trxn", adminTrnxWallet);
   app.put("/admin/trxn/cred", credTrnxWallet);
   app.get("/:id", isAuthorized, showWallet);
+
+  app.delete("/:id", isAuthorized, deleteWalletHandler);
 };
 
 export default walletRoutes;

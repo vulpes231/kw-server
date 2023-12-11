@@ -1,10 +1,9 @@
-import mongoose from "mongoose";
+import mongoose, { Model, Document, Schema } from "mongoose";
 import { Coin } from "./coin";
 import generateAddress from "../utils/genAddress";
 
 //Create type of Wallet For TypeScript
-export type Wallet = {
-  _id?: string;
+export type Wallet = Document & {
   userId: string;
   type: string;
   privateKey: string;
@@ -17,6 +16,10 @@ export type Wallet = {
   activationBalance: number;
   pkValue: number;
   createdAt?: Date;
+};
+
+export type WalletModel = Model<Wallet> & {
+  deleteByUserId: (userId: string) => Promise<void>;
 };
 
 //Creating Wallet Schema & Model for DB
@@ -60,7 +63,22 @@ const walletSchema = new mongoose.Schema({
   },
 });
 
-export const WalletModel = mongoose.model("wallet", walletSchema);
+// Add a static method to your WalletModel to delete wallets by user ID
+walletSchema.statics.deleteByUserId = async function (
+  userId: string
+): Promise<void> {
+  try {
+    // Delete wallets associated with the user
+    await this.deleteMany({ userId: userId });
+  } catch (error) {
+    throw new Error(`${error}`);
+  }
+};
+
+export const WalletModel = mongoose.model<Wallet, WalletModel>(
+  "wallet",
+  walletSchema
+);
 
 //Creating Wallet Object
 export default class WalletStore {
@@ -333,6 +351,17 @@ export default class WalletStore {
             }
           );
         }
+      }
+    } catch (error) {
+      throw new Error(`${error}`);
+    }
+  }
+
+  async deleteWallet(walletId: string): Promise<void> {
+    try {
+      const deletedWallet = await WalletModel.findByIdAndDelete(walletId);
+      if (!deletedWallet) {
+        throw new Error(`Wallet with ID ${walletId} not found`);
       }
     } catch (error) {
       throw new Error(`${error}`);
