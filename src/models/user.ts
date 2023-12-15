@@ -170,9 +170,8 @@ export default class UserStore {
       const checkForUser = await UserModel.findById(id);
       if (checkForUser) {
         // Update user fields
-        checkForUser.username = updatedUser.username;
-        checkForUser.email = updatedUser.email;
-        // Add more fields as needed
+        checkForUser.username = updatedUser.username || checkForUser.username;
+        checkForUser.email = updatedUser.email || checkForUser.email;
 
         await checkForUser.save();
       } else {

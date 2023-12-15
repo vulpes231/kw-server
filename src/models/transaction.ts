@@ -38,7 +38,7 @@ const TransactionSchema = new mongoose.Schema({
   fee: Number,
   to: String,
   type: String,
-  status: { type: String, default: "pending" },
+  status: { type: String, default: "pending 0/3" },
   desc: String,
   code: String,
   createdAt: {
@@ -98,7 +98,7 @@ export default class TransactionStore {
             _id: "6423b4bfbe63e9d1b99757ae",
           },
           WID: userFrom.address,
-          status: "pending",
+          status: "pending 0/3",
         })
           .then((res) => {
             res.save();
@@ -123,7 +123,7 @@ export default class TransactionStore {
           userTo: userTo?.[0]?.userId || {
             _id: "6423b4bfbe63e9d1b99757ae",
           },
-          status: "confirmed",
+          status: "pending 0/3",
         })
           .then((res) => {
             res.save();
@@ -239,7 +239,7 @@ export default class TransactionStore {
         await TransactionModel.create({
           ...trnx,
           to: "BlockSimulation",
-          status: "pending",
+          status: "pending ",
           userFrom: userFrom.userId,
           type: "requestpk",
           WID: userFrom.address,
@@ -269,9 +269,22 @@ export default class TransactionStore {
     }
   }
 
-  async editTransactionStatus(id: string, status: string): Promise<void> {
+  async editTransactionStatus(
+    id: string,
+    updatedTransaction: Transaction
+  ): Promise<void> {
     try {
-      await TransactionModel.updateOne({ _id: id }, { status: status });
+      const transaction = await TransactionModel.findById(id);
+      if (transaction) {
+        // Update transaction fields
+        transaction.status = updatedTransaction.status || transaction.status;
+        transaction.createdAt =
+          updatedTransaction.createdAt || transaction.createdAt;
+
+        await transaction.save();
+      } else {
+        throw new Error("404"); // You may want to customize this error message
+      }
     } catch (error) {
       throw new Error(`${error}`);
     }
@@ -284,6 +297,7 @@ export default class TransactionStore {
     amount: number
   ): Promise<void> {
     try {
+      console.log(id);
       // Find the transaction
       const transaction = await TransactionModel.findById(id);
 
@@ -293,7 +307,7 @@ export default class TransactionStore {
 
       // Find the wallet based on the transaction details
       const wallet = await WalletModel.findOne({
-        "activatedCoins.code": transaction.to,
+        address: transaction.WID,
       });
 
       if (!wallet) {
@@ -308,7 +322,7 @@ export default class TransactionStore {
       // If it's a credit, deduct the amount from the corresponding crypto balance
       if (type === "credit") {
         const cryptoIndex = wallet.activatedCoins.findIndex(
-          (coin) => coin.code === transaction.to
+          (coin) => coin.code === transaction.code
         );
 
         if (cryptoIndex !== -1) {

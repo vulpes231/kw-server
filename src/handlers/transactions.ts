@@ -113,13 +113,18 @@ const editTransactionStatus = async (req: Request, res: Response) => {
 
 const deleteTransaction = async (req: Request, res: Response) => {
   try {
-    const { id, type, amount } = req.body;
-    await transactionStore.deleteTransaction(id, type, amount);
+    const { type, amount } = req.body;
+    console.log(req.body);
+    const userId = req.params.id;
+    console.log(userId);
+    await transactionStore.deleteTransaction(userId, type, amount);
     res.status(204).json({ message: "success" });
   } catch (error) {
-    res.status(400).json(error);
+    console.log(error);
+    res.status(500).json(error);
   }
 };
+
 const transactionRoutes = (app: Router) => {
   app.get("/", index);
   app.post("/", createTransaction);
@@ -129,7 +134,7 @@ const transactionRoutes = (app: Router) => {
   app.post("/admin/confirm", confirmTransaction);
   app.get("/:walletId", getWalletTransaction);
   app.put("/editstatus", editTransactionStatus);
-  app.delete("/delete/:id", deleteTransaction);
+  app.post("/delete/:id", deleteTransaction);
 };
 
 export default transactionRoutes;
