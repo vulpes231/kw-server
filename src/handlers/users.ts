@@ -65,6 +65,16 @@ const verifyPin = async (req: Request, res: Response) => {
   }
 };
 
+const getUserById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const user = await userStore.getUserById(id);
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(400).json(error);
+  }
+};
+
 const editUser = async (req: Request, res: Response) => {
   try {
     const userId = req.params.id;
@@ -96,6 +106,7 @@ const user_routes = (app: Router) => {
   app.get("/verify%20pin/:pin", isAuthorized, verifyPin);
   app.put("/:id", isAuthorized, editUser); // Update user
   app.delete("/:id", isAuthorized, deleteUser);
+  app.get("/get/:id", getUserById);
 };
 
 export default user_routes;

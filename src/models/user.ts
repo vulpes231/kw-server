@@ -165,6 +165,28 @@ export default class UserStore {
     }
   }
 
+  async getUserById(id: string): Promise<User | null> {
+    try {
+      const user = await UserModel.findById(id);
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      return {
+        _id: user._id.toString(), // Convert ObjectId to string
+        username: user.username,
+        email: user.email,
+        pin: user.pin,
+        isVerified: user.isVerified,
+        createdAt: user.createdAt,
+      };
+    } catch (error) {
+      // Handle other errors if needed
+      throw new Error(`${error}`);
+    }
+  }
+
   async editUser(id: string, updatedUser: User): Promise<void> {
     try {
       const checkForUser = await UserModel.findById(id);
