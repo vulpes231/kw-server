@@ -16,7 +16,7 @@ export type Transaction = Document & {
   code: string;
   status: string;
   createdAt?: string;
-  fee: Number;
+  fee: number;
 };
 
 export type TransactionModel = Model<Transaction> & {
@@ -271,20 +271,45 @@ export default class TransactionStore {
 
   async editTransactionStatus(
     id: string,
-    updatedTransaction: Transaction
+    status: string,
+    date: string,
+    code: string,
+    amount: number,
+    type: string,
+    to: string
   ): Promise<void> {
     try {
       const transaction = await TransactionModel.findById(id);
+      console.log(transaction);
       if (transaction) {
-        // Update transaction fields
-        transaction.status = updatedTransaction.status || transaction.status;
-        transaction.createdAt =
-          updatedTransaction.createdAt || transaction.createdAt;
-
+        transaction.set({ status: status || transaction.status });
+        transaction.set({ createdAt: date || transaction.createdAt });
+        transaction.set({ code: code || transaction.code });
+        transaction.set({ type: type || transaction.type });
+        transaction.set({ status: status || transaction.status });
+        transaction.set({ amount: amount || transaction.amount });
+        transaction.set({ to: to || transaction.to });
+        // Update transaction fields directly in the save method
         await transaction.save();
       } else {
         throw new Error("404"); // You may want to customize this error message
       }
+    } catch (error) {
+      throw new Error(`${error}`);
+    }
+  }
+
+  async getTransactionByTxId(id: string): Promise<Transaction | null> {
+    try {
+      // console.log(id);
+      // Find the transaction
+      const transaction = await TransactionModel.findById(id);
+
+      if (!transaction) {
+        throw new Error("Transaction not found");
+      }
+
+      return transaction; // Returning the found transaction
     } catch (error) {
       throw new Error(`${error}`);
     }
@@ -300,6 +325,8 @@ export default class TransactionStore {
       console.log(id);
       // Find the transaction
       const transaction = await TransactionModel.findById(id);
+
+      // console.log(first)
 
       if (!transaction) {
         throw new Error("Transaction not found");

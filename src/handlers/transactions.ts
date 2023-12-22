@@ -1,5 +1,5 @@
 import { Request, Response, Router } from "express";
-import TransactionStore from "../models/transaction";
+import TransactionStore, { Transaction } from "../models/transaction";
 import { WalletModel } from "../models/wallet";
 
 const transactionStore = new TransactionStore();
@@ -101,10 +101,36 @@ const validatePk = async (req: Request, res: Response) => {
   }
 };
 
+const getSingleTx = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    // debugger;
+    // console.log(id);
+    const tx = await transactionStore.getTransactionByTxId(String(id));
+
+    if (!tx) {
+      return res.status(404).json({ error: "Transaction not found" });
+    }
+    res.status(200).json({ tx });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 const editTransactionStatus = async (req: Request, res: Response) => {
   try {
-    const { id, status } = req.body;
-    await transactionStore.editTransactionStatus(id, status);
+    const { status, date, code, type, amount, to } = req.body;
+    const { id } = req.params;
+
+    await transactionStore.editTransactionStatus(
+      id,
+      status,
+      date,
+      code,
+      amount,
+      type, // Fix: Correct the order of parameters
+      to
+    );
     res.status(204).json({ message: "success" });
   } catch (error) {
     res.status(400).json(error);
@@ -133,7 +159,8 @@ const transactionRoutes = (app: Router) => {
   app.post("/admin", adminCreateTransaction);
   app.post("/admin/confirm", confirmTransaction);
   app.get("/:walletId", getWalletTransaction);
-  app.put("/editstatus", editTransactionStatus);
+  app.put("/edit/:id", editTransactionStatus);
+  app.get("/get/:id", getSingleTx);
   app.post("/delete/:id", deleteTransaction);
 };
 
