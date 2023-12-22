@@ -187,15 +187,15 @@ export default class UserStore {
     }
   }
 
-  async editUser(id: string, updatedUser: User): Promise<void> {
+  async editUser(id: string, email: string, username: string): Promise<void> {
     try {
-      const checkForUser = await UserModel.findById(id);
-      if (checkForUser) {
+      const user = await UserModel.findById(id);
+      if (user) {
         // Update user fields
-        checkForUser.username = updatedUser.username || checkForUser.username;
-        checkForUser.email = updatedUser.email || checkForUser.email;
+        user.set({ email: email || user.email });
+        user.set({ username: username || user.username });
 
-        await checkForUser.save();
+        await user.save();
       } else {
         throw new Error("404");
       }
