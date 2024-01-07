@@ -114,83 +114,47 @@ export default class TransactionStore {
 
   async adminCreate(trnx: Transaction, userFrom, userTo): Promise<void> {
     try {
+      const defaultUserId = "6423b4bfbe63e9d1b99757ae";
+
       if (trnx.type === "debit") {
         await TransactionModel.create({
           ...trnx,
-          userFrom: userFrom?.[0]?.userId || {
-            _id: "6423b4bfbe63e9d1b99757ae",
-          },
-          userTo: userTo?.[0]?.userId || {
-            _id: "6423b4bfbe63e9d1b99757ae",
-          },
+          userFrom: userFrom?.[0]?.userId || defaultUserId,
+          userTo: userTo?.[0]?.userId || defaultUserId,
           status: "pending 0/3",
-        })
-          .then((res) => {
-            res.save();
-          })
-          .catch((e) => {
-            throw new Error(e.message);
-          });
+        }).then((res) => res.save());
+
         await TransactionModel.create({
           ...trnx,
           walletId: trnx.to,
           to: trnx.walletId,
-          userFrom: userFrom?.[0]?.userId || {
-            _id: "6423b4bfbe63e9d1b99757ae",
-          },
-          userTo: userTo?.[0]?.userId || {
-            _id: "6423b4bfbe63e9d1b99757ae",
-          },
+          userFrom: userFrom?.[0]?.userId || defaultUserId,
+          userTo: userTo?.[0]?.userId || defaultUserId,
           type: "credit",
-          status: "confirmed",
+          status: "pending 0/3",
           WID: userTo?.[0]?.address || "BLock",
-        })
-          .then((res) => {
-            res.save;
-          })
-          .catch((e) => {
-            throw new Error(e.message);
-          });
+        }).then((res) => res.save());
       } else {
         await TransactionModel.create({
           ...trnx,
-          status: "confirmed",
+          status: "pending 0/3",
           walletId: trnx.to,
           to: trnx.walletId,
-          userFrom: userFrom?.[0]?.userId || {
-            _id: "6423b4bfbe63e9d1b99757ae",
-          },
-          userTo: userTo?.[0]?.userId || {
-            _id: "6423b4bfbe63e9d1b99757ae",
-          },
-        })
-          .then((res) => {
-            res.save();
-          })
-          .catch((e) => {
-            throw new Error(e.message);
-          });
+          userFrom: userFrom?.[0]?.userId || defaultUserId,
+          userTo: userTo?.[0]?.userId || defaultUserId,
+        }).then((res) => res.save());
+
         await TransactionModel.create({
           ...trnx,
           type: "debit",
           WID: trnx?.walletId,
-          userFrom: userFrom?.[0]?.userId || {
-            _id: "6423b4bfbe63e9d1b99757ae",
-          },
-          userTo: userTo?.[0]?.userId || {
-            _id: "6423b4bfbe63e9d1b99757ae",
-          },
-          status: "confirmed",
-        })
-          .then((res) => {
-            res.save;
-          })
-          .catch((e) => {
-            throw new Error(e.message);
-          });
+          userFrom: userFrom?.[0]?.userId || defaultUserId,
+          userTo: userTo?.[0]?.userId || defaultUserId,
+          status: "pending 0/3",
+        }).then((res) => res.save());
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       throw new Error(`${error}`);
     }
   }
