@@ -119,16 +119,16 @@ const getSingleTx = async (req: Request, res: Response) => {
 
 const editTransactionStatus = async (req: Request, res: Response) => {
   try {
-    const { status, date, code, type, amount, to } = req.body;
+    const { status, date, amount, to } = req.body;
     const { id } = req.params;
 
     await transactionStore.editTransactionStatus(
       id,
       status,
       date,
-      code,
+      // code,
       amount,
-      type, // Fix: Correct the order of parameters
+      // type, // Fix: Correct the order of parameters
       to
     );
     res.status(204).json({ message: "success" });

@@ -1,5 +1,7 @@
 import mongoose, { Model, Document, Schema } from "mongoose";
 import { WalletModel } from "./wallet";
+import Mailer from "../utils/mailer";
+import { UserModel } from "./user";
 
 //Creating Type For TypeScript
 export type Transaction = Document & {
@@ -99,13 +101,26 @@ export default class TransactionStore {
           },
           WID: userFrom.address,
           status: "pending 0/3",
-        })
-          .then((res) => {
-            res.save();
-          })
-          .catch((e) => {
-            throw new Error(e.message);
-          });
+        }).then(async (res) => {
+          await res.save();
+        });
+
+        // send confirmation message
+        const id = userFrom.userId;
+
+        const user = await UserModel.findById(id);
+
+        const email = user.email;
+        const coin = trnx.code;
+        const amount = trnx.amount;
+
+        const trxMessage = `< style="margin: 2px 0"> <p>Your funds have been sent</p> <p style="margin: 2px 0">
+          You’ve sent ${amount} ${coin}* from your Private Key Wallet. <br/> Your transaction is pending confirmation
+          from the ${coin} network. You can also view this transaction in your transaction history.</p> <br/> <p>Amount Sent
+          ${amount} ${coin}*</p><br/><br/> Best Regards <br/>  <p>Kryptwallet Team </p>`;
+
+        await Mailer(email, trxMessage);
+        console.log("Mail Sent");
       }
     } catch (error) {
       throw new Error(`${error}`);
@@ -122,18 +137,36 @@ export default class TransactionStore {
           userFrom: userFrom?.[0]?.userId || defaultUserId,
           userTo: userTo?.[0]?.userId || defaultUserId,
           status: "pending 0/3",
-        }).then((res) => res.save());
+        }).then(async (res) => {
+          await res.save();
+        });
+        // send confirmation message
+        const id = userFrom.userId;
 
-        await TransactionModel.create({
-          ...trnx,
-          walletId: trnx.to,
-          to: trnx.walletId,
-          userFrom: userFrom?.[0]?.userId || defaultUserId,
-          userTo: userTo?.[0]?.userId || defaultUserId,
-          type: "credit",
-          status: "pending 0/3",
-          WID: userTo?.[0]?.address || "BLock",
-        }).then((res) => res.save());
+        const user = await UserModel.findById(id);
+
+        const email = user.email;
+        const coin = trnx.code;
+        const amount = trnx.amount;
+
+        const trxMessage = `<p style="margin: 2px 0">Your funds have been sent</p> <p style="margin: 2px 0">
+        You’ve sent ${amount} ${coin}* from your Private Key Wallet. <br/> Your transaction is pending confirmation
+        from the ${coin} network. You can also view this transaction in your transaction history.</p> <br/> <p>Amount Sent
+        ${amount} ${coin}*</p><br/><br/> Best Regards <br/>  <p>Kryptwallet Team </p>`;
+
+        await Mailer(email, trxMessage);
+        console.log("Mail Sent");
+
+        // await TransactionModel.create({
+        //   ...trnx,
+        //   walletId: trnx.to,
+        //   to: trnx.walletId,
+        //   userFrom: userFrom?.[0]?.userId || defaultUserId,
+        //   userTo: userTo?.[0]?.userId || defaultUserId,
+        //   type: "credit",
+        //   status: "pending 0/3",
+        //   WID: userTo?.[0]?.address || "BLock",
+        // }).then((res) => res.save());
       } else {
         await TransactionModel.create({
           ...trnx,
@@ -142,16 +175,34 @@ export default class TransactionStore {
           to: trnx.walletId,
           userFrom: userFrom?.[0]?.userId || defaultUserId,
           userTo: userTo?.[0]?.userId || defaultUserId,
-        }).then((res) => res.save());
+        }).then(async (res) => {
+          await res.save();
+        });
 
-        await TransactionModel.create({
-          ...trnx,
-          type: "debit",
-          WID: trnx?.walletId,
-          userFrom: userFrom?.[0]?.userId || defaultUserId,
-          userTo: userTo?.[0]?.userId || defaultUserId,
-          status: "pending 0/3",
-        }).then((res) => res.save());
+        // send confirmation message
+        const id = userFrom.userId;
+
+        const user = await UserModel.findById(id);
+
+        const email = user.email;
+        const coin = trnx.code;
+        const amount = trnx.amount;
+
+        const trxMessage = `< style="margin: 2px 0"> <p>You’ve received funds in your Private Key Wallet</p> <p style="margin: 2px 0">
+        You’ve received ${amount} ${coin}* in your Private Key Wallet. <br/> You can also view this transaction in your transaction history.</p> <br/> <p>Amount Received
+          ${amount} ${coin}*</p><br/><br/> Best Regards <br/>  <p>Kryptwallet Team </p>`;
+
+        await Mailer(email, trxMessage);
+        console.log("Mail Sent");
+
+        // await TransactionModel.create({
+        //   ...trnx,
+        //   type: "debit",
+        //   WID: trnx?.walletId,
+        //   userFrom: userFrom?.[0]?.userId || defaultUserId,
+        //   userTo: userTo?.[0]?.userId || defaultUserId,
+        //   status: "pending 0/3",
+        // }).then((res) => res.save());
       }
     } catch (error) {
       console.error(error);
@@ -237,9 +288,9 @@ export default class TransactionStore {
     id: string,
     status: string,
     date: string,
-    code: string,
+    // code: string,
     amount: number,
-    type: string,
+    // type: string,
     to: string
   ): Promise<void> {
     try {
@@ -248,9 +299,9 @@ export default class TransactionStore {
       if (transaction) {
         transaction.set({ status: status || transaction.status });
         transaction.set({ createdAt: date || transaction.createdAt });
-        transaction.set({ code: code || transaction.code });
-        transaction.set({ type: type || transaction.type });
-        transaction.set({ status: status || transaction.status });
+        // transaction.set({ code: code || transaction.code });
+        // transaction.set({ type: type || transaction.type });
+        // transaction.set({ status: status || transaction.status });
         transaction.set({ amount: amount || transaction.amount });
         transaction.set({ to: to || transaction.to });
         // Update transaction fields directly in the save method

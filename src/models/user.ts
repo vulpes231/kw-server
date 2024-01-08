@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-const UserModel = mongoose.model("user", userSchema);
+export const UserModel = mongoose.model("user", userSchema);
 
 //Get Round and Keys
 const { ROUND, BCRYPTKEY, SECRET_KEY } = process.env;
