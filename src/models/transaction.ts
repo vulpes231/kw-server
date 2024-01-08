@@ -141,11 +141,14 @@ export default class TransactionStore {
           await res.save();
         });
         // send confirmation message
-        const id = userFrom.userId;
+        // const id = userFrom.userId;
 
-        const user = await UserModel.findById(id);
+        // console.log("ID", id);
 
-        const email = user.email;
+        // const user = await TransactionModel.find({userFrom: userFrom})
+        // console.log(user);
+
+        const email = trnx.userFrom;
         const coin = trnx.code;
         const amount = trnx.amount;
 
@@ -179,12 +182,14 @@ export default class TransactionStore {
           await res.save();
         });
 
-        // send confirmation message
-        const id = userFrom.userId;
+        // // send confirmation message
+        // const id = userFrom.userId;
+        // console.log("ID", id);
 
-        const user = await UserModel.findById(id);
+        // const user = await UserModel.findById(id);
+        // console.log(user);
 
-        const email = user.email;
+        const email = trnx.userFrom;
         const coin = trnx.code;
         const amount = trnx.amount;
 
