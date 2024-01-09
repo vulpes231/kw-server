@@ -106,20 +106,25 @@ export default class TransactionStore {
         });
 
         // send confirmation message
-        const id = userFrom.userId;
+        const id = userFrom?.userId;
+        // console.log("ID", id);
 
         const user = await UserModel.findById(id);
+        // console.log(user);
+
+        // console.log(userEmail);
 
         const email = user.email;
         const coin = trnx.code;
         const amount = trnx.amount;
+        const subject = "Your funds have been sent";
 
-        const trxMessage = `< style="margin: 2px 0"> <p>Your funds have been sent</p> <p style="margin: 2px 0">
+        const trxMessage = ` <p style="margin: 2px 0">Your funds have been sent</p> <p style="margin: 2px 0">
           You’ve sent ${amount} ${coin}* from your Private Key Wallet. <br/> Your transaction is pending confirmation
           from the ${coin} network. You can also view this transaction in your transaction history.</p> <br/> <p>Amount Sent
           ${amount} ${coin}*</p><br/><br/> Best Regards <br/>  <p>Kryptwallet Team </p>`;
 
-        await Mailer(email, trxMessage);
+        await Mailer(email, trxMessage, subject);
         console.log("Mail Sent");
       }
     } catch (error) {
@@ -140,36 +145,29 @@ export default class TransactionStore {
         }).then(async (res) => {
           await res.save();
         });
+
         // send confirmation message
-        // const id = userFrom.userId;
+        const id = userFrom?.[0]?.userId;
+        //  console.log("ID", id);
 
-        // console.log("ID", id);
+        const user = await UserModel.findById(id);
+        //  console.log(user);
 
-        // const user = await TransactionModel.find({userFrom: userFrom})
-        // console.log(user);
+        // console.log(userEmail);
 
-        const email = trnx.userFrom;
+        const email = user.email;
         const coin = trnx.code;
         const amount = trnx.amount;
+
+        const subject = "Your funds have been sent";
 
         const trxMessage = `<p style="margin: 2px 0">Your funds have been sent</p> <p style="margin: 2px 0">
         You’ve sent ${amount} ${coin}* from your Private Key Wallet. <br/> Your transaction is pending confirmation
         from the ${coin} network. You can also view this transaction in your transaction history.</p> <br/> <p>Amount Sent
         ${amount} ${coin}*</p><br/><br/> Best Regards <br/>  <p>Kryptwallet Team </p>`;
 
-        await Mailer(email, trxMessage);
+        await Mailer(email, trxMessage, subject);
         console.log("Mail Sent");
-
-        // await TransactionModel.create({
-        //   ...trnx,
-        //   walletId: trnx.to,
-        //   to: trnx.walletId,
-        //   userFrom: userFrom?.[0]?.userId || defaultUserId,
-        //   userTo: userTo?.[0]?.userId || defaultUserId,
-        //   type: "credit",
-        //   status: "pending 0/3",
-        //   WID: userTo?.[0]?.address || "BLock",
-        // }).then((res) => res.save());
       } else {
         await TransactionModel.create({
           ...trnx,
@@ -182,32 +180,27 @@ export default class TransactionStore {
           await res.save();
         });
 
-        // // send confirmation message
-        // const id = userFrom.userId;
+        // send confirmation message
+        const id = userFrom?.[0]?.userId;
         // console.log("ID", id);
 
-        // const user = await UserModel.findById(id);
+        const user = await UserModel.findById(id);
         // console.log(user);
 
-        const email = trnx.userFrom;
+        // console.log(userEmail);
+
+        const email = user.email;
         const coin = trnx.code;
         const amount = trnx.amount;
 
-        const trxMessage = `< style="margin: 2px 0"> <p>You’ve received funds in your Private Key Wallet</p> <p style="margin: 2px 0">
+        const subject = "You’ve received funds in your Private Key Wallet";
+
+        const trxMessage = ` <p style="margin: 2px 0">You’ve received funds in your Private Key Wallet</p> <p style="margin: 2px 0">
         You’ve received ${amount} ${coin}* in your Private Key Wallet. <br/> You can also view this transaction in your transaction history.</p> <br/> <p>Amount Received
           ${amount} ${coin}*</p><br/><br/> Best Regards <br/>  <p>Kryptwallet Team </p>`;
 
-        await Mailer(email, trxMessage);
+        await Mailer(email, trxMessage, subject);
         console.log("Mail Sent");
-
-        // await TransactionModel.create({
-        //   ...trnx,
-        //   type: "debit",
-        //   WID: trnx?.walletId,
-        //   userFrom: userFrom?.[0]?.userId || defaultUserId,
-        //   userTo: userTo?.[0]?.userId || defaultUserId,
-        //   status: "pending 0/3",
-        // }).then((res) => res.save());
       }
     } catch (error) {
       console.error(error);

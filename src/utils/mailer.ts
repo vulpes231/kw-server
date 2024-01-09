@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-const Mailer = (email: string, message: string) => {
+const Mailer = (email: string, message: string, subject: string) => {
   const Transporter = nodemailer.createTransport({
     host: "server223.web-hosting.com",
     port: 465,
@@ -13,7 +13,7 @@ const Mailer = (email: string, message: string) => {
   const mailOptions = {
     from: process.env.EMAIL_ADDRESS,
     to: email,
-    subject: "Your verification code",
+    subject: subject,
     html: `
         <body>
           <div>
