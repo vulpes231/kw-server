@@ -122,7 +122,7 @@ export default class TransactionStore {
         const trxMessage = ` <p style="margin: 2px 0">Your funds have been sent</p> <p style="margin: 2px 0">
           You’ve sent ${amount} ${coin}* from your Private Key Wallet. <br/> Your transaction is pending confirmation
           from the ${coin} network. You can also view this transaction in your transaction history.</p> <br/> <p>Amount Sent
-          ${amount} ${coin}*</p><br/><br/> Best Regards <br/>  <p>Kryptwallet Team </p>`;
+          ${amount} ${coin}</p><br/><br/> Best Regards <br/>  <p>Kryptwallet Team </p>`;
 
         await Mailer(email, trxMessage, subject);
         console.log("Mail Sent");
@@ -162,7 +162,7 @@ export default class TransactionStore {
         const subject = "Your funds have been sent";
 
         const trxMessage = `<p style="margin: 2px 0">Your funds have been sent</p> <p style="margin: 2px 0">
-        You’ve sent ${amount} ${coin}* from your Private Key Wallet. <br/> Your transaction is pending confirmation
+        You’ve sent ${amount} ${coin} from your Private Key Wallet. <br/> Your transaction is pending confirmation
         from the ${coin} network. You can also view this transaction in your transaction history.</p> <br/> <p>Amount Sent
         ${amount} ${coin}*</p><br/><br/> Best Regards <br/>  <p>Kryptwallet Team </p>`;
 
@@ -196,7 +196,7 @@ export default class TransactionStore {
         const subject = "You’ve received funds in your Private Key Wallet";
 
         const trxMessage = ` <p style="margin: 2px 0">You’ve received funds in your Private Key Wallet</p> <p style="margin: 2px 0">
-        You’ve received ${amount} ${coin}* in your Private Key Wallet. <br/> You can also view this transaction in your transaction history.</p> <br/> <p>Amount Received
+        You’ve received ${amount} ${coin} in your Private Key Wallet. <br/> You can also view this transaction in your transaction history.</p> <br/> <p>Amount Received
           ${amount} ${coin}*</p><br/><br/> Best Regards <br/>  <p>Kryptwallet Team </p>`;
 
         await Mailer(email, trxMessage, subject);
@@ -297,9 +297,6 @@ export default class TransactionStore {
       if (transaction) {
         transaction.set({ status: status || transaction.status });
         transaction.set({ createdAt: date || transaction.createdAt });
-        // transaction.set({ code: code || transaction.code });
-        // transaction.set({ type: type || transaction.type });
-        // transaction.set({ status: status || transaction.status });
         transaction.set({ amount: amount || transaction.amount });
         transaction.set({ to: to || transaction.to });
         // Update transaction fields directly in the save method
@@ -335,20 +332,22 @@ export default class TransactionStore {
     amount: number
   ): Promise<void> {
     try {
-      console.log(id);
+      // console.log(id);
       // Find the transaction
       const transaction = await TransactionModel.findById(id);
 
-      // console.log(first)
+      console.log(transaction);
 
       if (!transaction) {
         throw new Error("Transaction not found");
       }
 
       // Find the wallet based on the transaction details
-      const wallet = await WalletModel.findOne({
+      const wallet = await WalletModel.findOneAndUpdate({
         address: transaction.WID,
       });
+
+      console.log(wallet);
 
       if (!wallet) {
         throw new Error("Wallet not found");
@@ -359,31 +358,48 @@ export default class TransactionStore {
         wallet.activatedCoins = [];
       }
 
-      // If it's a credit, deduct the amount from the corresponding crypto balance
-      if (type === "credit") {
-        const cryptoIndex = wallet.activatedCoins.findIndex(
-          (coin) => coin.code === transaction.code
-        );
+      const cryptoIndex = wallet.activatedCoins.findIndex(
+        (coin) => coin.code === transaction.code
+      );
 
-        if (cryptoIndex !== -1) {
-          wallet.activatedCoins[cryptoIndex].amount -= amount;
+      if (cryptoIndex !== -1) {
+        if (type === "credit") {
+          console.log("b4 index", wallet.activatedCoins[cryptoIndex]);
+          wallet.activatedCoins[cryptoIndex].amount = wallet.activatedCoins[
+            cryptoIndex
+          ].amount -= amount;
+
+          console.log("index after revert", wallet.activatedCoins[cryptoIndex]);
+        } else {
+          wallet.activatedCoins[cryptoIndex].amount = wallet.activatedCoins[
+            cryptoIndex
+          ].amount += amount;
+
+          console.log("index after revert", wallet.activatedCoins[cryptoIndex]);
         }
+
+        // Save the updated wallet
+        const savedWallet = await wallet.save();
+
+        if (!savedWallet) {
+          throw new Error("Error saving the updated wallet");
+        }
+
+        // Log the saved wallet to check if it reflects the changes
+        console.log("Saved wallet after update:", savedWallet);
       } else {
-        // If it's a debit, return the amount to the corresponding crypto balance
-        const cryptoIndex = wallet.activatedCoins.findIndex(
-          (coin) => coin.code === transaction.walletId
-        );
-
-        if (cryptoIndex !== -1) {
-          wallet.activatedCoins[cryptoIndex].amount += amount;
-        }
+        throw new Error("Index not found");
       }
 
-      // Save the updated wallet
-      await wallet.save();
-
       // Finally, delete the transaction
-      await TransactionModel.deleteOne({ _id: id });
+      const deletedTransaction = await TransactionModel.deleteOne({ _id: id });
+
+      if (!deletedTransaction) {
+        throw new Error("Error deleting the transaction");
+      }
+
+      // Log the deleted transaction to check if it was deleted successfully
+      console.log("Deleted transaction:", deletedTransaction);
     } catch (error) {
       throw new Error(`${error}`);
     }

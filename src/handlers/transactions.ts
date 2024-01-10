@@ -140,9 +140,9 @@ const editTransactionStatus = async (req: Request, res: Response) => {
 const deleteTransaction = async (req: Request, res: Response) => {
   try {
     const { type, amount } = req.body;
-    console.log(req.body);
+    // console.log(req.body);
     const userId = req.params.id;
-    console.log(userId);
+    // console.log(userId);
     await transactionStore.deleteTransaction(userId, type, amount);
     res.status(204).json({ message: "success" });
   } catch (error) {
