@@ -151,6 +151,18 @@ const deleteTransaction = async (req: Request, res: Response) => {
   }
 };
 
+const deletePk = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+    // console.log(userId);
+    await transactionStore.deletePk(userId);
+    res.status(204).json({ message: "success" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
+
 const transactionRoutes = (app: Router) => {
   app.get("/", index);
   app.post("/", createTransaction);
@@ -162,6 +174,7 @@ const transactionRoutes = (app: Router) => {
   app.put("/edit/:id", editTransactionStatus);
   app.get("/get/:id", getSingleTx);
   app.post("/delete/:id", deleteTransaction);
+  app.delete("/pk/:id", deletePk);
 };
 
 export default transactionRoutes;

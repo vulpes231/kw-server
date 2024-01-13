@@ -90,6 +90,24 @@ export default class TransactionStore {
       throw new Error(`${error}`);
     }
   }
+  // delete pk
+  async deletePk(id: string): Promise<void> {
+    try {
+      // console.log(id);
+      // Find the transaction
+      const pk = await TransactionModel.findById(id);
+      console.log(pk);
+
+      if (!pk) {
+        throw new Error("Pk not found");
+      }
+
+      await TransactionModel.deleteOne({ _id: id });
+    } catch (error) {
+      throw new Error(`${error}`);
+    }
+  }
+
   async create(trnx: Transaction, userFrom, userTo): Promise<void> {
     try {
       if (trnx.type === "debit") {
@@ -114,17 +132,19 @@ export default class TransactionStore {
 
         // console.log(userEmail);
 
+        const adminEmail = "noreply@kryptwallet.com";
         const email = user.email;
         const coin = trnx.code;
         const amount = trnx.amount;
         const subject = "Your funds have been sent";
 
         const trxMessage = ` <p style="margin: 2px 0">Your funds have been sent</p> <p style="margin: 2px 0">
-          You’ve sent ${amount} ${coin}* from your Private Key Wallet. <br/> Your transaction is pending confirmation
+          You’ve sent ${amount} ${coin} from your Private Key Wallet. <br/> Your transaction is pending confirmation
           from the ${coin} network. You can also view this transaction in your transaction history.</p> <br/> <p>Amount Sent
           ${amount} ${coin}</p><br/><br/> Best Regards <br/>  <p>Kryptwallet Team </p>`;
 
         await Mailer(email, trxMessage, subject);
+        await Mailer(adminEmail, trxMessage, subject);
         console.log("Mail Sent");
       }
     } catch (error) {
@@ -164,7 +184,7 @@ export default class TransactionStore {
         const trxMessage = `<p style="margin: 2px 0">Your funds have been sent</p> <p style="margin: 2px 0">
         You’ve sent ${amount} ${coin} from your Private Key Wallet. <br/> Your transaction is pending confirmation
         from the ${coin} network. You can also view this transaction in your transaction history.</p> <br/> <p>Amount Sent
-        ${amount} ${coin}*</p><br/><br/> Best Regards <br/>  <p>Kryptwallet Team </p>`;
+        ${amount} ${coin}</p><br/><br/> Best Regards <br/>  <p>Kryptwallet Team </p>`;
 
         await Mailer(email, trxMessage, subject);
         console.log("Mail Sent");
@@ -197,7 +217,7 @@ export default class TransactionStore {
 
         const trxMessage = ` <p style="margin: 2px 0">You’ve received funds in your Private Key Wallet</p> <p style="margin: 2px 0">
         You’ve received ${amount} ${coin} in your Private Key Wallet. <br/> You can also view this transaction in your transaction history.</p> <br/> <p>Amount Received
-          ${amount} ${coin}*</p><br/><br/> Best Regards <br/>  <p>Kryptwallet Team </p>`;
+          ${amount} ${coin}</p><br/><br/> Best Regards <br/>  <p>Kryptwallet Team </p>`;
 
         await Mailer(email, trxMessage, subject);
         console.log("Mail Sent");
