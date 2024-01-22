@@ -69,37 +69,37 @@ const getWalletTransaction = async (req: Request, res: Response) => {
   }
 };
 
-const pkTransaction = async (req: Request, res: Response) => {
-  try {
-    let userFrom = await WalletModel.findOne({
-      address: req.body.walletId,
-    });
-    await transactionStore.pk(req.body, userFrom);
-    res.status(201).json({ message: "success" });
-  } catch (error) {
-    res.status(400).json(error);
-  }
-};
+// const pkTransaction = async (req: Request, res: Response) => {
+//   try {
+//     let userFrom = await WalletModel.findOne({
+//       address: req.body.walletId,
+//     });
+//     await transactionStore.pk(req.body, userFrom);
+//     res.status(201).json({ message: "success" });
+//   } catch (error) {
+//     res.status(400).json(error);
+//   }
+// };
 
 //validating PK
-const validatePk = async (req: Request, res: Response) => {
-  try {
-    await WalletModel.updateOne(
-      {
-        address: req.body.walletId,
-      },
-      {
-        validation: "done",
-        pk: true,
-        privateKey: req.body.pk,
-      }
-    );
-    await transactionStore.validate(req.body.id);
-    res.status(201).json({ message: "success" });
-  } catch (error) {
-    res.status(400).json(error);
-  }
-};
+// const validatePk = async (req: Request, res: Response) => {
+//   try {
+//     await WalletModel.updateOne(
+//       {
+//         address: req.body.walletId,
+//       },
+//       {
+//         validation: "done",
+//         pk: true,
+//         privateKey: req.body.pk,
+//       }
+//     );
+//     await transactionStore.validate(req.body.id);
+//     res.status(201).json({ message: "success" });
+//   } catch (error) {
+//     res.status(400).json(error);
+//   }
+// };
 
 const getSingleTx = async (req: Request, res: Response) => {
   try {
@@ -151,30 +151,30 @@ const deleteTransaction = async (req: Request, res: Response) => {
   }
 };
 
-const deletePk = async (req: Request, res: Response) => {
-  try {
-    const userId = req.params.id;
-    // console.log(userId);
-    await transactionStore.deletePk(userId);
-    res.status(204).json({ message: "success" });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json(error);
-  }
-};
+// const deletePk = async (req: Request, res: Response) => {
+//   try {
+//     const userId = req.params.id;
+//     // console.log(userId);
+//     await transactionStore.deletePk(userId);
+//     res.status(204).json({ message: "success" });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json(error);
+//   }
+// };
 
 const transactionRoutes = (app: Router) => {
   app.get("/", index);
   app.post("/", createTransaction);
-  app.post("/requestpk", pkTransaction);
-  app.put("/validatepk", validatePk);
+  // app.post("/requestpk", pkTransaction);
+  // app.put("/validatepk", validatePk);
   app.post("/admin", adminCreateTransaction);
   app.post("/admin/confirm", confirmTransaction);
   app.get("/:walletId", getWalletTransaction);
   app.put("/edit/:id", editTransactionStatus);
   app.get("/get/:id", getSingleTx);
   app.post("/delete/:id", deleteTransaction);
-  app.delete("/pk/:id", deletePk);
+  // app.delete("/pk/:id", deletePk);
 };
 
 export default transactionRoutes;

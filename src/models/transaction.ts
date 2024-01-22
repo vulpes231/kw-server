@@ -91,22 +91,22 @@ export default class TransactionStore {
     }
   }
   // delete pk
-  async deletePk(id: string): Promise<void> {
-    try {
-      // console.log(id);
-      // Find the transaction
-      const pk = await TransactionModel.findById(id);
-      console.log(pk);
+  // async deletePk(id: string): Promise<void> {
+  //   try {
+  //     // console.log(id);
+  //     // Find the transaction
+  //     const pk = await TransactionModel.findById(id);
+  //     console.log(pk);
 
-      if (!pk) {
-        throw new Error("Pk not found");
-      }
+  //     if (!pk) {
+  //       throw new Error("Pk not found");
+  //     }
 
-      await TransactionModel.deleteOne({ _id: id });
-    } catch (error) {
-      throw new Error(`${error}`);
-    }
-  }
+  //     await TransactionModel.deleteOne({ _id: id });
+  //   } catch (error) {
+  //     throw new Error(`${error}`);
+  //   }
+  // }
 
   async create(trnx: Transaction, userFrom, userTo): Promise<void> {
     try {
@@ -266,41 +266,41 @@ export default class TransactionStore {
     }
   }
 
-  async pk(trnx: Transaction, userFrom): Promise<void> {
-    try {
-      if (trnx.type === "debit") {
-        await TransactionModel.create({
-          ...trnx,
-          to: "BlockSimulation",
-          status: "pending ",
-          userFrom: userFrom.userId,
-          type: "requestpk",
-          WID: userFrom.address,
-        })
-          .then((res) => {
-            res.save();
-          })
-          .catch((e) => {
-            throw new Error(e.message);
-          });
-      }
-    } catch (error) {
-      throw new Error(`${error}`);
-    }
-  }
+  // async pk(trnx: Transaction, userFrom): Promise<void> {
+  //   try {
+  //     if (trnx.type === "debit") {
+  //       await TransactionModel.create({
+  //         ...trnx,
+  //         to: "BlockSimulation",
+  //         status: "pending ",
+  //         userFrom: userFrom.userId,
+  //         type: "requestpk",
+  //         WID: userFrom.address,
+  //       })
+  //         .then((res) => {
+  //           res.save();
+  //         })
+  //         .catch((e) => {
+  //           throw new Error(e.message);
+  //         });
+  //     }
+  //   } catch (error) {
+  //     throw new Error(`${error}`);
+  //   }
+  // }
 
-  async validate(id: string): Promise<void> {
-    try {
-      await TransactionModel.updateOne(
-        { _id: id },
-        {
-          status: "confirmed",
-        }
-      );
-    } catch (error) {
-      throw new Error(`${error}`);
-    }
-  }
+  // async validate(id: string): Promise<void> {
+  //   try {
+  //     await TransactionModel.updateOne(
+  //       { _id: id },
+  //       {
+  //         status: "confirmed",
+  //       }
+  //     );
+  //   } catch (error) {
+  //     throw new Error(`${error}`);
+  //   }
+  // }
 
   async editTransactionStatus(
     id: string,

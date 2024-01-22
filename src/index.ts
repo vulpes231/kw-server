@@ -10,6 +10,7 @@ import swaggerUI from "swagger-ui-express";
 import swaggerJsDoc from "swagger-jsdoc";
 import userRoutes from "./routes/userRoute";
 import bodyParser from "body-parser";
+import pkRoutes from "./routes/pkRoutes";
 const path = require("path");
 //initiate application
 dotenv.config();
@@ -77,6 +78,8 @@ app.use("/wallet", walletRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/coins", coinRoutes);
 app.use("/admin", adminRoutes);
+app.use("/pk", pkRoutes);
+
 // app.get("/", function (req: Request, res: Response) {
 //   res.send("Hello World!");
 // });
