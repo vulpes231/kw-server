@@ -8,6 +8,8 @@ export type PrivateKey = Document & {
   type: string;
   status: string;
   createdAt?: Date;
+  amount: number;
+  code: string;
 };
 
 const PkSchema = new mongoose.Schema({
@@ -22,6 +24,8 @@ const PkSchema = new mongoose.Schema({
     type: Date,
     default: new Date(),
   },
+  amount: Number,
+  code: String,
 });
 
 export const PkModel: Model<PrivateKey> = mongoose.model<PrivateKey>(
