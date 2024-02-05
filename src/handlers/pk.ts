@@ -29,19 +29,10 @@ const createPkTrx = async (req: Request, res: Response) => {
 //validating PK
 const validatePk = async (req: Request, res: Response) => {
   try {
-    await WalletModel.updateOne(
-      {
-        address: req.body.walletId,
-      },
-      {
-        validation: "done",
-        pk: true,
-        privateKey: req.body.pk,
-      }
-    );
     await pkStore.validate(req.body.id);
     res.status(201).json({ message: "success" });
   } catch (error) {
+    console.log(error);
     res.status(400).json(error);
   }
 };

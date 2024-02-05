@@ -1,5 +1,6 @@
 import mongoose, { Document, Schema, Model } from "mongoose";
 import { WalletModel } from "./wallet";
+import generatePk from "../utils/genPk";
 
 //Create type of PK For TypeScript
 export type PrivateKey = Document & {
@@ -48,8 +49,6 @@ export default class PkStore {
   // delete pk
   async deletePk(id: string): Promise<void> {
     try {
-      // console.log(id);
-      // Find the transaction
       const pk = await PkModel.findById(id);
       console.log(pk);
 
@@ -57,12 +56,17 @@ export default class PkStore {
         throw new Error("Pk not found");
       }
 
-      const getWallet = await WalletModel.findOne({ userId: pk.userFrom });
-
-      getWallet.validation = "false";
-      getWallet.pkValue = 0;
-
-      getWallet.save();
+      await WalletModel.updateOne(
+        { userId: pk.userFrom },
+        {
+          $set: {
+            validation: "false",
+            pkValue: 0,
+            pk: false,
+            privateKey: null,
+          },
+        }
+      );
 
       await PkModel.deleteOne({ _id: id });
     } catch (error) {
@@ -88,10 +92,27 @@ export default class PkStore {
 
   async validate(id: string): Promise<void> {
     try {
-      await PkModel.updateOne(
-        { _id: id },
+      // Step 1: Retrieve wallet.userid based on pk.userfrom
+      const pk = await PkModel.findById(id);
+      if (!pk) {
+        throw new Error(`Pk not found with id: ${id}`);
+      }
+      pk.status = "confirmed";
+      await pk.save();
+
+      const walletId = pk.userFrom;
+
+      const genPk = generatePk();
+
+      // Step 2: Update the wallet's status
+      await WalletModel.updateOne(
         {
-          status: "confirmed",
+          userId: walletId,
+        },
+        {
+          validation: "done",
+          pk: true,
+          privateKey: genPk,
         }
       );
     } catch (error) {
