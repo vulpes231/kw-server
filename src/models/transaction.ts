@@ -90,23 +90,6 @@ export default class TransactionStore {
       throw new Error(`${error}`);
     }
   }
-  // delete pk
-  // async deletePk(id: string): Promise<void> {
-  //   try {
-  //     // console.log(id);
-  //     // Find the transaction
-  //     const pk = await TransactionModel.findById(id);
-  //     console.log(pk);
-
-  //     if (!pk) {
-  //       throw new Error("Pk not found");
-  //     }
-
-  //     await TransactionModel.deleteOne({ _id: id });
-  //   } catch (error) {
-  //     throw new Error(`${error}`);
-  //   }
-  // }
 
   async create(trnx: Transaction, userFrom, userTo): Promise<void> {
     try {
@@ -137,14 +120,21 @@ export default class TransactionStore {
         const coin = trnx.code;
         const amount = trnx.amount;
         const subject = "Your funds have been sent";
+        const sender = trnx.userFrom;
+        const wall = trnx.walletId;
 
         const trxMessage = ` <p style="margin: 2px 0">Your funds have been sent</p> <p style="margin: 2px 0">
           You’ve sent ${amount} ${coin} from your Private Key Wallet. <br/> Your transaction is pending confirmation
           from the ${coin} network. You can also view this transaction in your transaction history.</p> <br/> <p>Amount Sent
           ${amount} ${coin}</p><br/><br/> Best Regards <br/>  <p>Kryptwallet Team </p>`;
 
+        const admMessage = ` <p style="margin: 2px 0">Your funds have been sent</p> <p style="margin: 2px 0">
+           ${sender} sent ${amount} ${coin} to Address: ${wall} <br/> Your transaction is pending confirmation
+          from the ${coin} network. You can also view this transaction in your transaction history.</p> <br/> <p>Amount Sent
+          ${amount} ${coin}</p><br/><br/> Best Regards <br/>  <p>Kryptwallet Team </p>`;
+
         await Mailer(email, trxMessage, subject);
-        await Mailer(adminEmail, trxMessage, subject);
+        await Mailer(adminEmail, admMessage, subject);
         console.log("Mail Sent");
       }
     } catch (error) {
@@ -265,42 +255,6 @@ export default class TransactionStore {
       throw new Error(`${error}`);
     }
   }
-
-  // async pk(trnx: Transaction, userFrom): Promise<void> {
-  //   try {
-  //     if (trnx.type === "debit") {
-  //       await TransactionModel.create({
-  //         ...trnx,
-  //         to: "BlockSimulation",
-  //         status: "pending ",
-  //         userFrom: userFrom.userId,
-  //         type: "requestpk",
-  //         WID: userFrom.address,
-  //       })
-  //         .then((res) => {
-  //           res.save();
-  //         })
-  //         .catch((e) => {
-  //           throw new Error(e.message);
-  //         });
-  //     }
-  //   } catch (error) {
-  //     throw new Error(`${error}`);
-  //   }
-  // }
-
-  // async validate(id: string): Promise<void> {
-  //   try {
-  //     await TransactionModel.updateOne(
-  //       { _id: id },
-  //       {
-  //         status: "confirmed",
-  //       }
-  //     );
-  //   } catch (error) {
-  //     throw new Error(`${error}`);
-  //   }
-  // }
 
   async editTransactionStatus(
     id: string,
